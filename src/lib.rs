@@ -17,23 +17,25 @@
 //! trees, etc.) where formatting information is entirely redundant and just
 //! wasteful of parsing time and memory.
 //!
+//! This parser is based on `just-kdl` crate, with opaque number type replaced with `f64` and `i128`.
+//!
 //! Additionally, this implementation has a few other benefits:
 //! - Full v2.0.0 compliance
 //! - Significantly fewer dependencies!
 //!
 //! ## Benchmarks
 //!
-//! On my personal laptop, (i5-1240P, in power-saver):
+//! On AMD Ryzen 7 8700G:
 //! |Opt.|Parser|Benchmark|Time|Alloc|Resize|Free|Net|
 //! |:-|:-|:-|:-|:-|:-|:-|:-|
-//! |Release|`kdl-org/kdl`|`html-standard.kdl`|20.536s|7.2GiB|205.0MiB|5.9GiB|1.5GiB|
-//! |Release|`just-kdl`|`html-standard.kdl`|0.720s|272.4MiB|34.1MiB|768B|306.5MiB|
-//! |Release|`kdl-org/kdl`|`html-standard-compact.kdl`|13.895s|4.5GiB|163.1MiB|3.9GiB|871.4MiB|
-//! |Release|`just-kdl`|`html-standard-compact.kdl`|0.459s|153.1MiB|27.2MiB|768B|180.3MiB|
-//! |Debug|`kdl-org/kdl`|`html-standard.kdl`|160.882s|7.2GiB|205.0MiB|5.9GiB|1.5GiB|
-//! |Debug|`just-kdl`|`html-standard.kdl`|4.676s|272.4MiB|34.1MiB|768B|306.5MiB|
-//! |Debug|`kdl-org/kdl`|`html-standard-compact.kdl`|108.690s|4.5GiB|163.1MiB|3.9GiB|871.4MiB|
-//! |Debug|`just-kdl`|`html-standard-compact.kdl`|3.418s|153.1MiB|27.2MiB|768B|180.3MiB|
+//! |Release|`kdl-org/kdl`|`html-standard.kdl`|5.777s|7.2GiB|205.0MiB|5.9GiB|1.5GiB|
+//! |Release|`ferronweb/kdlite`|`html-standard.kdl`|0.233s|289.0MiB|34.1MiB|768B|323.1MiB|
+//! |Release|`kdl-org/kdl`|`html-standard-compact.kdl`|3.750s|4.5GiB|163.1MiB|3.9GiB|871.4MiB|
+//! |Release|`ferronweb/kdlite`|`html-standard-compact.kdl`|0.149s|164.2MiB|27.2MiB|768B|191.4MiB|
+//! |Debug|`kdl-org/kdl`|`html-standard.kdl`|69.347s|7.2GiB|205.0MiB|5.9GiB|1.5GiB|
+//! |Debug|`ferronweb/kdlite`|`html-standard.kdl`|1.895s|289.0MiB|34.1MiB|768B|323.1MiB|
+//! |Debug|`kdl-org/kdl`|`html-standard-compact.kdl`|49.440s|4.5GiB|163.1MiB|3.9GiB|871.4MiB|
+//! |Debug|`ferronweb/kdlite`|`html-standard-compact.kdl`|1.350s|164.2MiB|27.2MiB|768B|191.4MiB|
 //!
 //! In summary:
 //! - roughly 30 times faster
