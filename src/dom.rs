@@ -10,7 +10,7 @@ use std::num::FpCategory;
 use std::ops::{Index, IndexMut};
 
 use crate::stream::{Error, Event, Parser};
-use crate::{IdentDisplay, cow_static};
+use crate::{cow_static, IdentDisplay};
 
 fn maybe_debug<T: fmt::Debug>(value: Option<&T>) -> &dyn fmt::Debug {
   match value {
@@ -38,11 +38,19 @@ impl<'text> Document<'text> {
     }
   }
   /// Iterator over every node with a particular name
-  pub fn get(&self, name: &str) -> impl Iterator<Item = &Node<'text>> {
+  pub fn get<'a, 'b>(&'a self, name: &'b str) -> impl Iterator<Item = &'a Node<'text>> + 'b
+  where
+    'text: 'a,
+    'a: 'b,
+  {
     self.nodes.iter().filter(move |node| node.name() == name)
   }
   /// Mutable iterator over every node with a particular name
-  pub fn get_mut(&mut self, name: &str) -> impl Iterator<Item = &mut Node<'text>> {
+  pub fn get_mut<'a, 'b>(&'a mut self, name: &'b str) -> impl Iterator<Item = &'a mut Node<'text>> + 'b
+  where
+    'text: 'a,
+    'a: 'b,
+  {
     self.nodes.iter_mut().filter(move |node| node.name() == name)
   }
   pub fn parse(text: &'text str) -> Result<Self, Error> {
@@ -225,7 +233,11 @@ impl fmt::Display for Node<'_> {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
           let children = Children(self.0, Cell::new(false));
           let result = f.debug_set().entry(&children).finish();
-          if children.1.get() { Ok(()) } else { result }
+          if children.1.get() {
+            Ok(())
+          } else {
+            result
+          }
         }
       }
       f.write_str(" ")?;

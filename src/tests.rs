@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! kdl spec conformance testing
 use std::collections::HashSet;
-use std::panic::{UnwindSafe, catch_unwind};
+use std::panic::{catch_unwind, UnwindSafe};
 
 use crate::dom::Document;
-use crate::stream::{Parser, write_stream};
+use crate::stream::{write_stream, Parser};
 
 fn run_test_ref(input: &str, output: Test) {
   fn normalize(document: &mut KdlDocument) {
@@ -12,10 +12,10 @@ fn run_test_ref(input: &str, output: Test) {
       let entries = node.entries_mut();
       let mut seen = HashSet::new();
       for i in (0..entries.len()).rev() {
-        if let Some(name) = entries[i].name()
-          && !seen.insert(name.clone())
-        {
-          entries.remove(i);
+        if let Some(name) = entries[i].name() {
+          if !seen.insert(name.clone()) {
+            entries.remove(i);
+          }
         }
       }
       if let Some(doc) = node.children_mut() {
@@ -59,8 +59,8 @@ enum Test {
   Equal(&'static str),
 }
 
-use Test::{Equal, Panic};
 use kdl::KdlDocument;
+use Test::{Equal, Panic};
 
 impl Test {
   fn run(&self, label: &str, inner: impl FnOnce() -> String + UnwindSafe) {

@@ -16,7 +16,7 @@ use std::borrow::Cow;
 use std::fmt;
 
 use crate::dom::Value;
-use crate::{IdentDisplay, cow_static};
+use crate::{cow_static, IdentDisplay};
 
 /// A parsing error
 /// `usize` arguments are byte positions in the source text
