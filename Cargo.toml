@@ -12,9 +12,6 @@ documentation = "https://docs.rs/kdlite"
 homepage = "https://github.com/ferronweb/kdlite"
 repository = "https://github.com/ferronweb/kdlite"
 
-[dependencies]
-thiserror = "2.0.11"
-
 [dev-dependencies]
 # for testing compliance & performance
 kdl = "6.3.4"

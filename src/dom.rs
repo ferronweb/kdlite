@@ -6,9 +6,9 @@ use std::cell::Cell;
 use std::collections::HashSet;
 use std::convert::Infallible;
 use std::fmt;
+use std::num::FpCategory;
 use std::ops::{Index, IndexMut};
 
-use crate::number::Number;
 use crate::stream::{Error, Event, Parser};
 use crate::{IdentDisplay, cow_static};
 
@@ -361,13 +361,23 @@ impl<'text> From<&'text str> for EntryKey<'text> {
   }
 }
 
+fn norm_float(v: f64) -> u64 {
+  match v.classify() {
+    FpCategory::Nan => u64::MAX,
+    FpCategory::Zero => 0,
+    FpCategory::Infinite | FpCategory::Subnormal | FpCategory::Normal => v.to_bits(),
+  }
+}
+
 /// The value of an [`Entry`]
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone)]
 pub enum Value<'text> {
   /// A textual value
   String(Cow<'text, str>),
-  /// A numeric value
-  Number(Number),
+  /// An integer value
+  Integer(i128),
+  /// A floating-point number value
+  Float(f64),
   /// A boolean value
   Bool(bool),
   /// The `#null` value
@@ -379,7 +389,8 @@ impl Value<'_> {
   pub fn into_owned(self) -> Value<'static> {
     match self {
       Self::String(value) => Value::String(cow_static(value)),
-      Self::Number(value) => Value::Number(value),
+      Self::Integer(value) => Value::Integer(value),
+      Self::Float(value) => Value::Float(value),
       Self::Bool(value) => Value::Bool(value),
       Self::Null => Value::Null,
     }
@@ -391,7 +402,8 @@ impl fmt::Debug for Value<'_> {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match self {
       Self::String(value) => fmt::Debug::fmt(&**value, f),
-      Self::Number(value) => fmt::Debug::fmt(value, f),
+      Self::Integer(value) => fmt::Debug::fmt(value, f),
+      Self::Float(value) => fmt::Debug::fmt(value, f),
       Self::Bool(true) => f.write_str("#true"),
       Self::Bool(false) => f.write_str("#false"),
       Self::Null => f.write_str("#null"),
@@ -402,10 +414,56 @@ impl fmt::Display for Value<'_> {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match self {
       Value::String(value) => fmt::Display::fmt(&IdentDisplay(value), f),
-      Value::Number(value) => fmt::Display::fmt(value, f),
+      Value::Integer(value) => fmt::Display::fmt(value, f),
+      Value::Float(value) => match value.classify() {
+        FpCategory::Nan => f.write_str("#nan"),
+        FpCategory::Infinite => f.write_str(if value.is_sign_negative() { "#-inf" } else { "#inf" }),
+        FpCategory::Zero | FpCategory::Subnormal | FpCategory::Normal => {
+          // use debug fmt to ensure that floats get re-parsed as floats
+          fmt::Debug::fmt(&value, f)
+        }
+      },
       Value::Bool(true) => f.write_str("#true"),
       Value::Bool(false) => f.write_str("#false"),
       Value::Null => f.write_str("#null"),
+    }
+  }
+}
+impl PartialEq for Value<'_> {
+  fn eq(&self, other: &Self) -> bool {
+    match (self, other) {
+      (Self::String(l), Self::String(r)) => l == r,
+      (Self::Integer(l), Self::Integer(r)) => l == r,
+      (Self::Float(l), Self::Float(r)) => norm_float(*l) == norm_float(*r),
+      (Self::Bool(l), Self::Bool(r)) => l == r,
+      (Self::Null, Self::Null) => true,
+      _ => false,
+    }
+  }
+}
+impl Eq for Value<'_> {}
+impl std::hash::Hash for Value<'_> {
+  fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    match self {
+      Value::String(value) => {
+        state.write_u8(0);
+        value.hash(state);
+      }
+      Value::Integer(value) => {
+        state.write_u8(1);
+        value.hash(state);
+      }
+      Value::Float(value) => {
+        state.write_u8(2);
+        norm_float(*value).hash(state);
+      }
+      Value::Bool(value) => {
+        state.write_u8(3);
+        value.hash(state);
+      }
+      Value::Null => {
+        state.write_u8(4);
+      }
     }
   }
 }
@@ -419,9 +477,14 @@ impl<'text> From<String> for Value<'text> {
     Self::String(Cow::Owned(value))
   }
 }
-impl<'text, T: Into<Number>> From<T> for Value<'text> {
-  fn from(value: T) -> Self {
-    Self::Number(value.into())
+impl<'text> From<f64> for Value<'text> {
+  fn from(value: f64) -> Self {
+    Self::Float(value)
+  }
+}
+impl<'text> From<i128> for Value<'text> {
+  fn from(value: i128) -> Self {
+    Self::Integer(value)
   }
 }
 impl<'text> From<bool> for Value<'text> {

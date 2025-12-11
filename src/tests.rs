@@ -769,8 +769,8 @@ test_case! { hex_int,
   // number representation bug
   "node 0xABCDEF0123456789abcdef\n",
   ref: Equal("node 207698809136909011942886895\n"),
-  dom: Panic,
-  stream: Panic,
+  dom: Equal("node 207698809136909011942886895\n"),
+  stream: Equal("node 207698809136909011942886895\n"),
 }
 test_case! { hex_int_underscores,
   "node 0xABC_def_0123",

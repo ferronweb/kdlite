@@ -47,7 +47,6 @@ use std::borrow::Cow;
 use std::fmt;
 
 pub mod dom;
-pub mod number;
 pub mod stream;
 
 #[cfg(test)]

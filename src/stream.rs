@@ -16,7 +16,6 @@ use std::borrow::Cow;
 use std::fmt;
 
 use crate::dom::Value;
-use crate::number::{Number, NumberError};
 use crate::{IdentDisplay, cow_static};
 
 /// A parsing error
@@ -59,6 +58,13 @@ pub enum Error {
 }
 
 type PResult<T> = Result<T, Error>;
+
+/// A inner representation of a number
+#[derive(Clone, Copy)]
+enum NumberInner {
+  F64(f64),
+  I128(i128),
+}
 
 /// a parsing event
 #[derive(Debug)]
@@ -215,7 +221,7 @@ impl<'text> Grammar<'text> {
     text.as_bytes().first().is_some_and(u8::is_ascii_digit)
   }
   /// `number`, assuming text is a valid ident
-  fn all_number(&self, at: Pos) -> Result<Number, NumberError> {
+  fn all_number(&self, at: Pos) -> Option<NumberInner> {
     #[derive(Clone, Copy)]
     enum Radix {
       Binary = 2,
@@ -223,19 +229,19 @@ impl<'text> Grammar<'text> {
       Decimal = 10,
       Hexadecimal = 16,
     }
-    fn append(buf: &mut String, state: &mut bool, ch: char, radix: Radix) -> Result<(), NumberError> {
+    fn append(buf: &mut String, state: &mut bool, ch: char, radix: Radix) -> bool {
       *state = match (radix, ch) {
-        (_, '_') if *state => return Ok(()),
+        (_, '_') if *state => return true,
         (Radix::Binary, '0'..='1')
         | (Radix::Octal, '0'..='7')
         | (Radix::Decimal, '0'..='9')
         | (Radix::Hexadecimal, '0'..='9' | 'a'..='f' | 'A'..='F') => true,
         (Radix::Decimal, '.' | 'e' | 'E') if *state => false,
         (Radix::Decimal, '+' | '-') => false,
-        _ => return Err(NumberError::BadSyntax),
+        _ => return false,
       };
       buf.push(ch);
-      Ok(())
+      true
     }
     // sign: +? uses unsigned, - uses signed
     // [+-]?0b[01][01_]* -> int base 2
@@ -258,23 +264,23 @@ impl<'text> Grammar<'text> {
       _ => (at, Radix::Decimal),
     };
     for ch in self.tail(at).chars() {
-      append(&mut buffer, &mut state, ch, radix)?;
+      if !append(&mut buffer, &mut state, ch, radix) {
+        return None;
+      }
     }
     let radix = radix as u32;
-    if let Ok(value) = u64::from_str_radix(&buffer, radix) {
-      Ok(Number::from_u64(value))
-    } else if let Ok(value) = i64::from_str_radix(&buffer, radix) {
-      Ok(Number::from_i64(value))
+    if let Ok(value) = i128::from_str_radix(&buffer, radix) {
+      Some(NumberInner::I128(value))
     } else if radix == 10 {
       if buffer.ends_with('.') {
-        Err(NumberError::BadSyntax)
+        None
       } else if let Ok(value) = buffer.parse() {
-        Ok(Number::from_f64(value))
+        Some(NumberInner::F64(value))
       } else {
-        Err(NumberError::BadSyntax)
+        None
       }
     } else {
-      Err(NumberError::BadSyntax)
+      None
     }
   }
   /// `single-line-comment` after `//`
@@ -680,13 +686,16 @@ impl<'text> Grammar<'text> {
       next,
       match value {
         SemiValue::String(text) => Value::String(text),
-        SemiValue::Number(text) => Value::Number(text.parse().map_err(|_| Error::InvalidNumber(at.0))?),
+        SemiValue::Number(text) => match parse_number(text).ok_or(Error::InvalidNumber(at.0))? {
+          NumberInner::F64(num) => Value::Float(num),
+          NumberInner::I128(num) => Value::Integer(num),
+        },
         SemiValue::Keyword("null") => Value::Null,
         SemiValue::Keyword("true") => Value::Bool(true),
         SemiValue::Keyword("false") => Value::Bool(false),
-        SemiValue::Keyword("inf") => Value::Number(Number::from_f64(f64::INFINITY)),
-        SemiValue::Keyword("-inf") => Value::Number(Number::from_f64(f64::NEG_INFINITY)),
-        SemiValue::Keyword("nan") => Value::Number(Number::from_f64(f64::NAN)),
+        SemiValue::Keyword("inf") => Value::Float(f64::INFINITY),
+        SemiValue::Keyword("-inf") => Value::Float(f64::NEG_INFINITY),
+        SemiValue::Keyword("nan") => Value::Float(f64::NAN),
         SemiValue::Keyword(_) => return Err(Error::BadKeyword(at.0)),
       },
     ))
@@ -824,7 +833,7 @@ impl<'text> Grammar<'text> {
 }
 
 /// Actual number parsing implementation based on the streaming combinators
-pub(crate) fn parse_number(text: &str) -> Result<Number, NumberError> {
+fn parse_number(text: &str) -> Option<NumberInner> {
   Grammar(text).all_number(Pos(0))
 }
 
