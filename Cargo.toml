@@ -12,9 +12,12 @@ documentation = "https://docs.rs/kdlite"
 homepage = "https://github.com/ferronweb/kdlite"
 repository = "https://github.com/ferronweb/kdlite"
 
-[dependencies.thiserror]
-version = "2.0.11"
+[dependencies]
+thiserror = "2.0.11"
 
+[dev-dependencies]
 # for testing compliance & performance
-[dev-dependencies.kdl]
-version = "6.3.4"
+kdl = "6.3.4"
+
+# Git hook
+shiba = "0.1.1"
