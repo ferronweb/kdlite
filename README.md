@@ -1,15 +1,19 @@
-# just-kdl
-[![Repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](https://github.com/1e1001/rsutil/tree/main/just-kdl)
-[![Crates.io](https://img.shields.io/crates/v/just-kdl)](https://crates.io/crates/just-kdl)
-[![docs.rs](https://img.shields.io/docsrs/just-kdl)](https://docs.rs/just-kdl)
-[![MIT OR Apache-2.0](https://img.shields.io/crates/l/just-kdl)](https://github.com/1e1001/rsutil/blob/main/just-kdl/README.md#License)
+# kdlite
+[![Repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](https://github.com/ferronweb/kdlite)
+[![Crates.io](https://img.shields.io/crates/v/kdlite)](https://crates.io/crates/kdlite)
+[![docs.rs](https://img.shields.io/docsrs/kdlite)](https://docs.rs/kdlite)
+[![MIT OR Apache-2.0](https://img.shields.io/crates/l/kdlite)](https://github.com/ferronweb/kdlite/blob/main/README.md#License)
 
-Implementation of a [kdl] v2.0.0 parser.
+Implementation of a [KDL](https://kdl.dev) v2 parser, based on [`just-kdl` crate](https://github.com/kdl-org/kdl.git)
 
-For more information, [read the docs](https://docs.rs/miny).
+For more information, [read the docs](https://docs.rs/kdlite).
 
 ## Changelog
-### 0.1.0
-- Initial (unstable) release
 
-[kdl]: <https://kdl.dev>
+### 0.1.0
+
+- Initial release based on `just-kdl` crate
+
+## License
+
+MIT OR Apache-2.0
