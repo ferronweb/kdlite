@@ -46,7 +46,7 @@ impl<'text> Document<'text> {
     self.nodes.iter_mut().filter(move |node| node.name() == name)
   }
   pub fn parse(text: &'text str) -> Result<Self, Error> {
-    Parser::new(text).collect()
+    Ok(Parser::new(text).collect::<Result<Vec<_>, _>>()?.into_iter().collect())
   }
 }
 
