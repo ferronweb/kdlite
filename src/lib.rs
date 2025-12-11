@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-//! [![Repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](https://github.com/1e1001/rsutil/tree/main/just-kdl)
-//! [![Crates.io](https://img.shields.io/crates/v/just-kdl)](https://crates.io/crates/just-kdl)
-//! [![docs.rs](https://img.shields.io/docsrs/just-kdl)](https://docs.rs/just-kdl)
-//! [![MIT OR Apache-2.0](https://img.shields.io/crates/l/just-kdl)](https://github.com/1e1001/rsutil/blob/main/just-kdl/README.md#License)
+//! [![Repository](https://img.shields.io/badge/repository-GitHub-brightgreen.svg)](https://github.com/ferronweb/kdlite)
+//! [![Crates.io](https://img.shields.io/crates/v/kdlite)](https://crates.io/crates/kdlite)
+//! [![docs.rs](https://img.shields.io/docsrs/kdlite)](https://docs.rs/kdlite)
+//! [![MIT OR Apache-2.0](https://img.shields.io/crates/l/kdlite)](https://github.com/ferronweb/kdlite/blob/main/README.md#License)
 //!
-//! Small streaming [KDL] v2.0.0 parser
+//! Small streaming [KDL] v2.0.0 parser, based on [`just-kdl` crate](https://github.com/kdl-org/kdl.git)
 //!
 //! Designed for reasonable performance and memory efficiency, at the expense
 //! (or benefit, depending on use) of not storing formatting information.
