@@ -4,7 +4,7 @@
 //! [![docs.rs](https://img.shields.io/docsrs/kdlite)](https://docs.rs/kdlite)
 //! [![MIT OR Apache-2.0](https://img.shields.io/crates/l/kdlite)](https://github.com/ferronweb/kdlite/blob/main/README.md#License)
 //!
-//! Small streaming [KDL] v2.0.0 parser, based on [`just-kdl` crate](https://github.com/kdl-org/kdl.git)
+//! Small streaming [KDL] v2.0.0 parser, based on [`just-kdl` crate](https://github.com/1e1001/rsutil/tree/main/just-kdl)
 //!
 //! Designed for reasonable performance and memory efficiency, at the expense
 //! (or benefit, depending on use) of not storing formatting information.

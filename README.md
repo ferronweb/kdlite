@@ -4,7 +4,7 @@
 [![docs.rs](https://img.shields.io/docsrs/kdlite)](https://docs.rs/kdlite)
 [![MIT OR Apache-2.0](https://img.shields.io/crates/l/kdlite)](https://github.com/ferronweb/kdlite/blob/main/README.md#License)
 
-Implementation of a [KDL](https://kdl.dev) v2 parser, based on [`just-kdl` crate](https://github.com/kdl-org/kdl.git)
+Implementation of a [KDL](https://kdl.dev) v2 parser, based on [`just-kdl` crate](https://github.com/1e1001/rsutil/tree/main/just-kdl)
 
 For more information, [read the docs](https://docs.rs/kdlite).
 
