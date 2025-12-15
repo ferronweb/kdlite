@@ -501,7 +501,7 @@ impl<'text> Grammar<'text> {
           None => return Err(Error::UnexpectedEof),
         }
       }
-      &self.tail(start)[..first.unwrap().0 - start.0]
+      &self.tail(start)[..first.ok_or(Error::UnexpectedEof)?.0 - start.0]
     };
     lines
       .into_iter()
