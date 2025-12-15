@@ -10,6 +10,10 @@ For more information, [read the docs](https://docs.rs/kdlite).
 
 ## Changelog
 
+### 0.1.1
+
+- Improved error reporting and handling for invalid KDL documents (for example, unexpected `}` characters)
+
 ### 0.1.0
 
 - Initial release based on `just-kdl` crate
