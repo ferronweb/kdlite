@@ -667,7 +667,9 @@ impl<'text> Grammar<'text> {
           },
         ))
       }
-      _ => Err(Error::ExpectedCloseParen(at.0)),
+      Some('}') => Err(Error::UnexpectedCloseBracket(at.0)),
+      None => Err(Error::UnexpectedEof), // No character found, so probably EOF
+      _ => Err(Error::BadIdentifier(at.0)),
     }
   }
 
